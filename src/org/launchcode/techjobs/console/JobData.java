@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by LaunchCode
@@ -33,9 +34,15 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
+        //create copy of allJobs to use in findAll method
+        ArrayList<HashMap<String, String>> copyAllJobs = new ArrayList<HashMap<String, String>>(allJobs.size());
+        for (HashMap<String, String> map: allJobs) {
+            copyAllJobs.add((HashMap)map.clone());
+        }
+
         ArrayList<String> values = new ArrayList<>();
 
-        for (HashMap<String, String> row : allJobs) {
+        for (HashMap<String, String> row : copyAllJobs) {
             String aValue = row.get(field);
 
             if (!values.contains(aValue)) {
@@ -65,24 +72,48 @@ public class JobData {
      * @param value Value of teh field to search for
      * @return List of all jobs matching the criteria
      */
+
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        loadData();
+
+
+        ArrayList<HashMap<String, String>> searchResults = new ArrayList<>();
+        /**jobs containing the searched word*/
+        for (HashMap<String, String> word : allJobs) {
+            for (Map.Entry<String, String> job : word.entrySet()) {
+                if (job.getValue().toLowerCase().contains(value) || job.getValue().toUpperCase().contains(value)) {
+                    searchResults.add(word);
+                }
+            }
+        }
+        return searchResults;
+    }
+
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
 
         // load data, if not already loaded
         loadData();
+
 
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
 
         for (HashMap<String, String> row : allJobs) {
 
             String aValue = row.get(column);
-
-            if (aValue.contains(value)) {
+            //aValue = aValue.toUpperCase();
+            if (aValue.toLowerCase().contains(value) || aValue.toUpperCase().contains(value)) {
                 jobs.add(row);
             }
         }
 
         return jobs;
     }
+
+
+
+
+
 
     /**
      * Read in data from a CSV file and store it in a list
